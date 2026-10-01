@@ -1,0 +1,15 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.db
+.pytest_cache/
+.ruff_cache/
+# log folder created at runtime by the LiveKit noise-cancellation library
+KMS/
+# n8n's own data (workflows, credentials) if it is ever pointed inside the project
+.n8n/
+node_modules/
+dist/
+*.log

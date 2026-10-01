@@ -1,0 +1,55 @@
+{
+  "name": "Voice CRM Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "crm-events",
+        "authentication": "headerAuth",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "5f0b8c1e-1a01-4c55-9a11-000000000001",
+      "name": "CRM Event Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "crm-events"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Decide which CRM events deserve a Slack message and format them.\n// Returning [] stops the flow for events we don't notify on.\nconst event = $input.first().json.body;\nconst d = event.data || {};\nconst via = d.source === 'voice' ? ' :microphone: _via voice_' : '';\nconst usd = (n) => '$' + Number(n || 0).toLocaleString('en-US');\nlet text = null;\n\nswitch (event.type) {\n  case 'opportunity.stage_changed':\n    if (d.to_stage === 'Won') text = `:tada: *Deal won!* ${d.title} with ${d.contact_name} (${usd(d.value)})${via}`;\n    else if (d.to_stage === 'Lost') text = `:small_red_triangle_down: Deal lost: ${d.title} with ${d.contact_name}${via}`;\n    else text = `:arrow_right: *${d.contact_name}* moved ${d.from_stage} → *${d.to_stage}* (${d.title}, ${usd(d.value)})${via}`;\n    break;\n  case 'lead.created':\n    text = `:wave: New lead: *${d.name}*${d.company ? ' from ' + d.company : ''} (source: ${d.source})`;\n    break;\n  case 'task.created':\n  case 'task.updated':\n    if (d.source === 'voice') text = `:spiral_calendar_pad: Follow-up for *${d.contact_name}*: ${d.title} (due ${d.due_date})${via}`;\n    break;\n}\n\nreturn text ? [{ json: { text } }] : [];"
+      },
+      "id": "5f0b8c1e-1a01-4c55-9a11-000000000002",
+      "name": "Format Slack Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/REPLACE/WITH/YOUR-WEBHOOK",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: $json.text }) }}",
+        "options": {}
+      },
+      "id": "5f0b8c1e-1a01-4c55-9a11-000000000003",
+      "name": "Post to Slack",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 0]
+    }
+  ],
+  "connections": {
+    "CRM Event Webhook": {
+      "main": [[{ "node": "Format Slack Message", "type": "main", "index": 0 }]]
+    },
+    "Format Slack Message": {
+      "main": [[{ "node": "Post to Slack", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "pinData": {}
+}

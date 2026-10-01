@@ -1,0 +1,14 @@
+# Python lint/format settings for backend/ and agent/.
+#   ruff check .     ruff format .
+line-length = 120
+target-version = "py312"
+extend-exclude = [".venv", "node_modules"]
+
+[lint]
+select = ["E", "F", "W", "B", "UP", "SIM", "I"]
+# FastAPI's Depends()/Query() in argument defaults is the framework's intended idiom.
+ignore = ["B008"]
+
+[lint.isort]
+# Each Python app is run from its own folder, so these are first-party imports.
+known-first-party = ["app", "seed", "crm_client", "dates", "agent"]

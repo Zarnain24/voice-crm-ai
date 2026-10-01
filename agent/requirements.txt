@@ -1,0 +1,8 @@
+livekit-agents[deepgram,groq,silero]>=1.8
+livekit-plugins-noise-cancellation>=0.2
+httpx>=0.28
+python-dotenv>=1.0
+tzdata>=2024.2
+
+# dev / tests
+pytest>=8.3

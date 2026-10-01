@@ -1,0 +1,17 @@
+{
+  "name": "voice-crm",
+  "private": true,
+  "description": "Runs the whole project in one terminal. Use start.cmd (or `npm run dev` once set up).",
+  "scripts": {
+    "dev": "concurrently -k -n api,agent,web,n8n -c blue,magenta,green,yellow \"npm:dev:backend\" \"npm:dev:agent\" \"npm:dev:frontend\" \"npm:dev:n8n\"",
+    "dev:core": "concurrently -k -n api,agent,web -c blue,magenta,green \"npm:dev:backend\" \"npm:dev:agent\" \"npm:dev:frontend\"",
+    "dev:backend": "cd backend && .venv\\Scripts\\uvicorn app.main:app --port 8000",
+    "dev:agent": "cd agent && .venv\\Scripts\\python agent.py dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:n8n": "cd n8n && set N8N_DIAGNOSTICS_ENABLED=false&& set N8N_VERSION_NOTIFICATIONS_ENABLED=false&& npx --yes n8n@2",
+    "test": "cd backend && .venv\\Scripts\\python -m pytest -q && cd ..\\agent && .venv\\Scripts\\python -m pytest -q"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
